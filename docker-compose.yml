@@ -1,0 +1,29 @@
+version: '3.1'
+services:
+  postgres:
+    image: postgres:11
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+  n8n:
+    image: n8nio/n8n
+    restart: always
+    env_file:
+      - .env
+    build: .
+    ports:
+      - 5678:5678
+    depends_on:
+      - postgres
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - n8n_files:/files
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: /bin/sh -c "sleep 5; n8n start"
+
+volumes:
+  n8n_data:
+  n8n_files:
+  postgres_data:
